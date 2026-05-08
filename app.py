@@ -104,9 +104,15 @@ st.markdown("""
 
 @st.cache_resource
 def load_assets():
-    # Force cache invalidation to load new dataset with 'make' column
-    model = joblib.load("model.joblib")
-    dataset = joblib.load("dataset.joblib")
+    try:
+        model = joblib.load("model.joblib")
+        dataset = joblib.load("dataset.joblib")
+    except Exception as e:
+        st.warning("Cloud server environment mismatch detected. Rebuilding machine learning model dynamically... (This only happens once!)")
+        import train_model
+        train_model.main()
+        model = joblib.load("model.joblib")
+        dataset = joblib.load("dataset.joblib")
     
     # Fit NearestNeighbors for comparable cars
     nn_features = ['year', 'miles_driven', 'engine']
